@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Portal de pagos</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <h1>Facturas</h1>
+    </header> 
+    {% for pago in pagos %}
+    <div class="pago-item">
+        <button onclick="desplegarFactura('{{pago.id}}')">Factura</button>
+    {% endfor %}
+</body>
+</html>

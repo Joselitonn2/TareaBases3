@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Portal principal</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header>
+        <h1>Portal principal</h1>
+    </header>
+    
+    <form action="/Pagos" method="POST">
+    <input type="number" name="filtro" placeholder="Numero de propiedad o identificicacion de propietario"  
+        pattern="[0-9]+" 
+        title="Solo numeros" required>
+        <button type="submit">Buscar</button>
+    </form>
+</body>
+</html>
