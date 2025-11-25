@@ -10,11 +10,22 @@
         <h1>Portal principal</h1>
     </header>
     
-    <form action="/Pagos" method="POST">
-    <input type="number" name="filtro" placeholder="Numero de propiedad o identificicacion de propietario"  
+    <div class="formsPagos">
+        <form action="/PagosPorPropiedad" method="POST">
+    <input type="number" name="filtro" placeholder="Numero de propiedad"  
         pattern="[0-9]+" 
         title="Solo numeros" required>
         <button type="submit">Buscar</button>
-    </form>
+        </form>
+
+        <form action="/PagosPorIdentificacion" method="POST">
+    <input type="number" name="filtro" placeholder="Identificicacion de propietario"  
+        pattern="[0-9]+" 
+        title="Solo numeros" required>
+        <button type="submit">Buscar</button>
+        </form>
+        
+    </div>
+    
 </body>
 </html>

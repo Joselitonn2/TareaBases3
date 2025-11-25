@@ -50,3 +50,16 @@ form {
     border: 1px solid #ccc;
 }
 }
+
+formsPagos {
+    display: flexbox;
+    flex-direction: row;
+    width: 50%;
+    margin: 20px auto;
+    padding: 20px;
+    background: none;
+    background-color: none;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    align-items: center;
+}
