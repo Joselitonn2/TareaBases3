@@ -1,17 +1,117 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <title>Portal de pagos</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <title>Consulta de Facturas</title>
+    <style>
+       
+        /* Estilos de Tabla Adaptados */
+        .facturas-container {
+            width: 80%;
+            margin: 40px auto;
+            padding: 20px;
+            border: 1px solid #ccc; /* Borde simple para delimitar la sección de resultados */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .facturas-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .facturas-table th, .facturas-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .facturas-table th {
+            background-color: #f8f8f8;
+            color: #333;
+            font-weight: bold;
+            border-top: 2px solid #ccc;
+        }
+        
+        /* ... Clases para botones activos/deshabilitados ... */
+        .btn-pay-active {
+            background-color: #4d17e4; 
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn-pay-disabled {
+            background-color: #cccccc; 
+            color: #666;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Facturas</h1>
-    </header> 
-    {% for pago in pagos %}
-    <div class="pago-item">
-        <button onclick="desplegarFactura('{{pago.id}}')">Factura</button>
-    {% endfor %}
+
+    <h1>Consulta de Facturas de {{idOp}}</h1>
+    
+
+    {% if facturas %}
+    <div class="facturas-container">
+        <h2>Facturas Encontradas</h2>
+        
+        <table class="facturas-table">
+            <thead>
+                <tr>
+                    <th>N° Factura</th>
+                    <th>Vencimiento</th>
+                    <th>Monto Total</th>
+                    <th>Estado</th>
+                    <th>Finca</th>
+                    <th>Acciones</th> </tr>
+            </thead>
+            <tbody>
+                {% for factura in facturas %}
+                <tr>
+                    <td>{{ factura.NumeroFactura }}</td>
+                    <td>{{ factura.FechaVencimiento.strftime('%Y-%m-%d') if factura.FechaVencimiento else 'N/A' }}</td>
+                    <td>${{ "{:,.2f}".format(factura.MontoTotal) }}</td>
+                    <td>{{ factura.DetalleEstado }}</td>
+                    <td>{{ factura.NumeroFinca }}</td>
+                    
+                    <td>
+                        {% if factura.IdEstadoFactura == 1 %}
+                            {% set es_activa = factura.IdFactura == facturaAntigua %}
+                            {% set texto_boton = 'Pagar $' + "{:,.2f}".format(factura.MontoTotal) + ' Vence ' + factura.FechaVencimiento.strftime('%d/%m/%Y') %}
+                            
+                            {% if es_activa %}
+                                <form action="/pagarFactura" method="POST">
+                                <input type="hidden" name="numeroFinca" value="{{ factura.NumeroFinca }}"> <button type="submit" class="btn btn-primary">Pagar</button>
+                                </form>
+                            {% else %}
+                                <button type="button" disabled 
+                                        title="Debe pagar la factura más antigua primero" 
+                                        class="btn-pay-disabled">
+                                    {{ texto_boton }}
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <span>—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="facturas-container">
+        <p>No se encontraron facturas con los criterios proporcionados.</p>
+    </div>
+    {% endif %}
+    
 </body>
 </html>

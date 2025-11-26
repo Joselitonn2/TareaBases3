@@ -3,23 +3,35 @@
 <head>
     <meta charset="utf-8" />
     <title>Portal principal</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="static/styles.css" />
 </head>
 <body>
     <header>
         <h1>Portal principal</h1>
     </header>
     
+     {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flashes-container">
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
     <div class="formsPagos">
-        <form action="/PagosPorPropiedad" method="POST">
-    <input type="number" name="filtro" placeholder="Numero de propiedad"  
-        pattern="[0-9]+" 
+        <form action="/pagos" method="POST">
+    <input type="text" name="filtroPropiedad" placeholder="Numero de propiedad"  
+        pattern="F-\d{4}" 
         title="Solo numeros" required>
         <button type="submit">Buscar</button>
         </form>
 
-        <form action="/PagosPorIdentificacion" method="POST">
-    <input type="number" name="filtro" placeholder="Identificicacion de propietario"  
+        <form action="/pagos" method="POST">
+    <input type="number" name="filtroIdentificación" placeholder="Identificicacion de propietario"  
         pattern="[0-9]+" 
         title="Solo numeros" required>
         <button type="submit">Buscar</button>
