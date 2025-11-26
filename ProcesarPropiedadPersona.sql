@@ -3,19 +3,19 @@ CREATE OR ALTER PROCEDURE sp_ProcesarRelacionPropiedadPersona
     @FechaActual DATE
 AS
 BEGIN
-    -- A. TIPO 1: ASOCIAR (INSERT)
-    -- Busca Persona y Propiedad por sus c骴igos 鷑icos y crea la relaci髇
+    --ASOCIAR
+    -- Busca Persona y Propiedad por sus c贸digos 煤nicos y crea la relaci贸n
     INSERT INTO Propietario (IdPersona, IdPropiedad, FechaInicio)
     SELECT Per.Id, Prop.Id, @FechaActual 
     FROM @xmlData.nodes('/Operaciones/FechaOperacion[@fecha=sql:variable("@FechaActual")]/PropiedadPersona/Movimiento') AS T(x) 
     INNER JOIN Persona Per ON Per.ValorDocumentoIdentidad = x.value('@valorDocumento', 'VARCHAR(50)') 
     INNER JOIN Propiedad Prop ON Prop.NumeroFinca = x.value('@numeroFinca', 'VARCHAR(50)')
     WHERE x.value('@tipoAsociacionId', 'INT') = 1 
-      -- Validaci髇 para no duplicar si ya es due駉 activo
+      -- Validaci贸n para no duplicar si ya es due帽o activo
       AND NOT EXISTS (SELECT 1 FROM Propietario WHERE IdPersona=Per.Id AND IdPropiedad=Prop.Id AND FechaFin IS NULL);
     
-    -- B. TIPO 2: DESASOCIAR (UPDATE)
-    -- Cierra la relaci髇 poniendo FechaFin
+    --DESASOCIAR
+    --Cierra la relaci贸n poniendo FechaFin
     UPDATE Pro 
     SET FechaFin = @FechaActual 
     FROM Propietario Pro 
@@ -26,6 +26,6 @@ BEGIN
         FROM @xmlData.nodes('/Operaciones/FechaOperacion[@fecha=sql:variable("@FechaActual")]/PropiedadPersona/Movimiento') AS T(x) 
         WHERE x.value('@tipoAsociacionId', 'INT') = 2
     ) XMLData ON XMLData.Doc = Per.ValorDocumentoIdentidad AND XMLData.Fin = Prop.NumeroFinca 
-    WHERE Pro.FechaFin IS NULL; -- Solo cierra las que est醤 abiertas
+    WHERE Pro.FechaFin IS NULL; -- Solo cierra las que est谩n abiertas
 END;
 GO
