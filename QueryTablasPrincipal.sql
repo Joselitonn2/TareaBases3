@@ -3,64 +3,62 @@ CREATE TABLE TipoMovimientoLecturaMedidor (
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Tipo de Uso de Propiedad
+-- CatÃ¡logo: Tipo de Uso de Propiedad
 CREATE TABLE TipoUsoPropiedad (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Tipo de Zona de Propiedad
+-- CatÃ¡logo: Tipo de Zona de Propiedad
 CREATE TABLE TipoZonaPropiedad (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Tipo de Usuario
+-- CatÃ¡logo: Tipo de Usuario
 CREATE TABLE TipoUsuario (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Tipo de Asociación
+-- CatÃ¡logo: Tipo de AsociaciÃ³n
 CREATE TABLE TipoAsociacion (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Tipo de Medio de Pago
+-- CatÃ¡logo: Tipo de Medio de Pago
 CREATE TABLE TipoMedioPago (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Periodo Monto Concepto de Cobro
+-- CatÃ¡logo: Periodo Monto Concepto de Cobro
 CREATE TABLE PeriodoMontoCC (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL,
     QMeses INT NOT NULL
 );
 
--- Catálogo: Tipo de Monto Concepto de Cobro
+-- CatÃ¡logo: Tipo de Monto Concepto de Cobro
 CREATE TABLE TipoMontoCC (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Estado de Factura
+-- CatÃ¡logo: Estado de Factura
 CREATE TABLE EstadoFactura (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- Catálogo: Estado de Orden de Corta
+-- CatÃ¡logo: Estado de Orden de Corta
 CREATE TABLE EstadoOrdenCorta (
     Id INT NOT NULL PRIMARY KEY,
     Nombre NVARCHAR(64) NOT NULL
 );
 
--- =============================================
--- TABLA DE PARÁMETROS DEL SISTEMA
--- =============================================
+
 
 CREATE TABLE ParametrosSistema (
     Id INT IDENTITY(1,1) PRIMARY KEY,
@@ -69,9 +67,7 @@ CREATE TABLE ParametrosSistema (
     Descripcion NVARCHAR(256) NULL
 );
 
--- =============================================
--- TABLAS DE ENTIDADES PRINCIPALES
--- =============================================
+
 
 -- Tabla: Personas
 CREATE TABLE Persona (
@@ -103,7 +99,7 @@ CREATE TABLE Propiedad (
         REFERENCES TipoZonaPropiedad(Id)
 );
 
--- Tabla: Propietarios (relación entre Persona y Propiedad)
+-- Tabla: Propietarios (relaciÃ³n entre Persona y Propiedad)
 CREATE TABLE Propietario (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     IdPersona INT NOT NULL,
@@ -146,9 +142,7 @@ CREATE TABLE UsuarioPropiedad (
         REFERENCES Propiedad(Id)
 );
 
--- =============================================
--- CONCEPTOS DE COBRO
--- =============================================
+
 
 -- Tabla: Concepto de Cobro (base)
 CREATE TABLE ConceptoCobro (
@@ -185,9 +179,7 @@ CREATE TABLE ConceptoCobroPropiedad (
         REFERENCES ConceptoCobro(Id)
 );
 
--- =============================================
--- LECTURAS DE MEDIDOR
--- =============================================
+
 
 -- Tabla: Movimiento de Lectura de Medidor
 CREATE TABLE MovimientoLecturaMedidor (
@@ -206,9 +198,7 @@ CREATE TABLE MovimientoLecturaMedidor (
         REFERENCES TipoMovimientoLecturaMedidor(Id)
 );
 
--- =============================================
--- FACTURAS Y PAGOS
--- =============================================
+
 
 -- Tabla: Facturas
 CREATE TABLE Factura (
@@ -257,11 +247,9 @@ CREATE TABLE ComprobantePago (
         REFERENCES TipoMedioPago(Id)
 );
 
--- =============================================
--- ÓRDENES DE CORTA Y RECONEXIÓN
--- =============================================
 
--- Tabla: Órdenes de Corta de Agua
+
+-- Tabla: Ã“rdenes de Corta de Agua
 CREATE TABLE OrdenCorta (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     IdPropiedad INT NOT NULL,
@@ -277,7 +265,7 @@ CREATE TABLE OrdenCorta (
         REFERENCES EstadoOrdenCorta(Id)
 );
 
--- Tabla: Órdenes de Reconexión de Agua
+-- Tabla: Ã“rdenes de ReconexiÃ³n de Agua
 CREATE TABLE OrdenReconexion (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     IdOrdenCorta INT NOT NULL,
@@ -293,15 +281,13 @@ CREATE TABLE OrdenReconexion (
         REFERENCES Factura(Id)
 );
 
--- =============================================
--- BITÁCORA DE CAMBIOS
--- =============================================
+
 
 CREATE TABLE BitacoraCambios (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     NombreTabla NVARCHAR(128) NOT NULL,
     IdRegistro INT NOT NULL,
-    TipoOperacion NVARCHAR(32) NOT NULL, -- INSERT, UPDATE, DELETE
+    TipoOperacion NVARCHAR(32) NOT NULL,
     ValorAnterior NVARCHAR(MAX) NULL,
     ValorNuevo NVARCHAR(MAX) NULL,
     IdUsuario INT NULL,
