@@ -1,43 +1,46 @@
 CREATE OR ALTER PROCEDURE sp_PagarFacturaPortal
     @NumeroFinca VARCHAR(50),
-    @TipoMedioPago INT -- 1: Efectivo, 2: Tarjeta
+    @TipoMedioPago INT,
+    @OutResult INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    --Variables
+    SET @OutResult = 0;
+
     DECLARE @IdFacturaVieja INT;
     DECLARE @TotalPagar DECIMAL(18,2);
     DECLARE @FechaVencimiento DATE;
     DECLARE @MontoMoroso DECIMAL(18,2);
     DECLARE @IdCCMoratorio INT = 7; 
     DECLARE @FechaActual DATE = GETDATE();
-    
-    -- Variable para el comprobante
     DECLARE @NumComprobante VARCHAR(50);
 
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        --Buscar la factura pendiente más vieja
+        --Buscar factura
         SELECT TOP 1 
             @IdFacturaVieja = F.Id, 
             @TotalPagar = F.TotalAPagarFinal, 
             @FechaVencimiento = F.FechaVencimiento
         FROM Factura F
         INNER JOIN Propiedad P ON P.Id = F.IdPropiedad
-        WHERE P.NumeroFinca = @NumeroFinca 
-          AND F.IdEstadoFactura = 1 -- Pendiente
+        WHERE P.NumeroFinca = @NumeroFinca AND F.IdEstadoFactura = 1
         ORDER BY F.FechaVencimiento ASC;
 
+        
         IF @IdFacturaVieja IS NULL
         BEGIN
             ROLLBACK TRANSACTION;
-            PRINT 'La propiedad no tiene facturas pendientes.';
-            RETURN 1; 
+            SET @OutResult = 50001;
+            
+            
+            SELECT @OutResult AS ResultCode; 
+            
+            RETURN;
         END
 
-        --Calcular Intereses Moratorios
+        --Calcular Intereses
         IF @FechaActual > @FechaVencimiento
         BEGIN
             DECLARE @DiasAtraso INT = DATEDIFF(DAY, @FechaVencimiento, @FechaActual);
@@ -46,38 +49,33 @@ BEGIN
             INSERT INTO DetalleFactura (IdFactura, IdConceptoCobro, Descripcion, Monto)
             VALUES (@IdFacturaVieja, @IdCCMoratorio, 'Intereses Moratorios (Portal)', @MontoMoroso);
 
-            UPDATE Factura 
-            SET TotalAPagarFinal = TotalAPagarFinal + @MontoMoroso 
-            WHERE Id = @IdFacturaVieja;
-            
+            UPDATE Factura SET TotalAPagarFinal = TotalAPagarFinal + @MontoMoroso WHERE Id = @IdFacturaVieja;
             SET @TotalPagar = @TotalPagar + @MontoMoroso;
         END
 
-        --Registrar el Pago
+        --Pagar
         SET @NumComprobante = CONCAT('WEB-', FORMAT(@FechaActual, 'yyyyMMdd'), '-', RIGHT(CAST(NEWID() AS VARCHAR(36)), 8));
 
         INSERT INTO ComprobantePago (IdFactura, NumeroComprobante, IdTipoMedioPago, MontoPago, FechaPago)
         VALUES (@IdFacturaVieja, @NumComprobante, @TipoMedioPago, @TotalPagar, @FechaActual);
 
-        --Actualizar Estado Factura
         UPDATE Factura SET IdEstadoFactura = 2 WHERE Id = @IdFacturaVieja;
-
-        --Reconexión Automática
-        UPDATE OrdenCorta 
-        SET IdEstadoOrden = 2 
-        WHERE IdFactura = @IdFacturaVieja AND IdEstadoOrden = 1;
+        UPDATE OrdenCorta SET IdEstadoOrden = 2 WHERE IdFactura = @IdFacturaVieja AND IdEstadoOrden = 1;
 
         COMMIT TRANSACTION;
         
-        
-        PRINT 'Pago realizado con éxito. Comprobante: ' + @NumComprobante;
-        RETURN 0;
-
+        --Ã‰XITO
+        SELECT @OutResult AS ResultCode; 
+        RETURN; 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        SET @OutResult = 50005; 
         PRINT 'Error procesando pago: ' + ERROR_MESSAGE();
-        RETURN -500;
+        
+        SELECT @OutResult AS ResultCode; 
+        RETURN; 
     END CATCH
 END;
 GO
